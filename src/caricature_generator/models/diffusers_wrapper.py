@@ -6,8 +6,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 
 import torch
-from diffusers import StableDiffusionImg2ImgPipeline
-from diffusers.schedulers import schedulers
+from diffusers import DPMSolverMultistepScheduler, StableDiffusionImg2ImgPipeline
 from PIL import Image
 
 from ..config import ModelConfig
@@ -52,10 +51,13 @@ class DiffusersCaricatureModel:
             torch_dtype=torch.float16 if self._device == "cuda" else torch.float32,
         )
 
-        scheduler_cls = getattr(schedulers, self._config.scheduler, None)
-        if scheduler_cls is None:
-            raise ValueError(f"Unsupported scheduler: {self._config.scheduler}")
-        pipe.scheduler = scheduler_cls.from_config(pipe.scheduler.config)
+        if self._config.scheduler != "DPMSolverMultistepScheduler":
+            logger.warning(
+                "Scheduler %s not explicitly supported. Falling back to DPMSolverMultistepScheduler.",
+                self._config.scheduler,
+            )
+
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 
         pipe.to(self._device)
         self._pipeline = pipe
@@ -83,4 +85,3 @@ class DiffusersCaricatureModel:
             ).images
             outputs.extend(images)
         return outputs
-

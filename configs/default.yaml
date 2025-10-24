@@ -1,0 +1,19 @@
+input_dir: "examples/input"
+output_dir: "examples/output"
+batch_size: 4
+device: "cuda"
+model:
+  backend: "diffusers"
+  pretrained_model: "SG161222/Realistic_Vision_V5.1_noVAE"
+  scheduler: "DPMSolverMultistepScheduler"
+preprocessing:
+  image_size: 512
+  align_faces: true
+  background_mode: "preserve"
+  safety_filter: true
+postprocessing:
+  blend_alpha: 0.8
+  output_format: "png"
+logging:
+  level: "INFO"
+  log_dir: "logs"
